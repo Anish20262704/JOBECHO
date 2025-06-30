@@ -35,6 +35,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // api's
+app.get("/api/v1/ping", (req, res) => {
+    res.json({ success: true, message: "Backend is working fine! 🚀" });
+});
+
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
