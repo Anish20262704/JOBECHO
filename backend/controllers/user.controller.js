@@ -94,7 +94,12 @@ export const login = async (req, res) => {
             profile: user.profile
         }
 
-        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: 'strict' }).json({
+        return res.status(200).cookie("token", token, {
+            httpOnly: true,            // <-- correct spelling
+            secure: true,              // <-- HTTPS ke liye
+            sameSite: 'none',          // <-- cross-origin ke liye must
+            maxAge: 1 * 24 * 60 * 60 * 1000
+        }).json({
             message: `Welcome back ${user.fullname}`,
             user,
             success: true
@@ -120,7 +125,7 @@ export const logout = async (req, res) => {
 //         const file = req.file;
 //         // cloudinary ayega idhar
 //         const fileUri = getDataUri(file);
-        
+
 //         const baseName = path.basename(file.originalname, extName);
 //         const extName = path.extname(file.originalname);
 
@@ -198,7 +203,7 @@ export const updateProfile = async (req, res) => {
             resource_type: "raw",        // PDF or doc
             use_filename: true,          // keep original filename
             unique_filename: false,      // no random suffix
-            public_id: baseName ,         // keep name as public_id
+            public_id: baseName,         // keep name as public_id
             overwrite: true              // replace if exists
         });
 
