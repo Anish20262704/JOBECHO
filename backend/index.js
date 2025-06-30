@@ -7,7 +7,6 @@ import userRoute from "./routes/user.route.js";
 import companyRoute from "./routes/company.route.js";
 import jobRoute from "./routes/job.route.js";
 import applicationRoute from "./routes/application.route.js";
-import serverless from "serverless-http"; // <-- import serverless-http
 
 dotenv.config({});
 
@@ -18,15 +17,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// cors
+// Dynamic CORS setup
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:5173"];
+
 const corsOptions = {
-    origin: 'http://localhost:5173',   // local dev pe
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true); // allow Postman, etc.
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true
 };
-app.use(cors(corsOptions));
 
-// connect DB once
-connectDB();
+app.use(cors(corsOptions));
 
 // api's
 app.use("/api/v1/user", userRoute);
@@ -34,5 +40,10 @@ app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
 
-// instead of app.listen
-export default serverless(app);
+// server
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    connectDB();
+    console.log(`🚀 Server running at port ${PORT}`);
+});
